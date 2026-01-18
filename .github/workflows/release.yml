@@ -1,0 +1,90 @@
+name: Create Release on Tag Push
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout 主项目
+      - name: Checkout
+        uses: actions/checkout@v4 # 建议使用 v4
+        with:
+          path: tabby-connection-homepage
+
+      # 2. 克隆依赖项目
+      - name: Checkout Dependency Project
+        uses: actions/checkout@v4
+        with:
+          repository: Eugeny/tabby
+          path: tabby-fork
+
+      # 3. Install Node.js
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+          # 修正缓存路径，否则缓存会失效
+          cache: "yarn"
+          cache-dependency-path: tabby-connection-homepage/yarn.lock
+
+      - name: Update npm
+        run: npm install -g npm@11.7.0
+
+      - name: Setup yarn
+        run: npm i -g yarn # 全局安装不需要指定 working-directory
+
+      - name: Install & Build Dependency (tabby-fork)
+        working-directory: ./tabby-fork
+        run: |
+          yarn install
+          # 如果 tabby-fork 需要编译才能被主项目使用，取消下面这行的注释
+          # yarn build
+
+      # 4. Install & Build
+      - name: Install dependencies
+        working-directory: ./tabby-connection-homepage
+        run: yarn install
+
+      - name: Build for production
+        working-directory: ./tabby-connection-homepage
+        run: yarn build
+
+      # 5. Package as zip file (注意：将 zip 放在根目录方便后续引用)
+      - name: Zip it
+        run: zip -r dist.zip ./tabby-connection-homepage/dist/
+
+      # 6. Get changelog
+      - name: Set up Python
+        uses: actions/setup-python@v5 # 升级到 v5
+        with:
+          python-version: '3.11' # 建议用较新的 Python
+
+      - name: Get CHANGELOGS
+        working-directory: ./tabby-connection-homepage
+        run: python ./scripts/release_note.py
+      
+      # 7. Create GitHub Release
+      - name: Release
+        uses: softprops/action-gh-release@v2 # 建议使用 v2
+        with:
+          body_path: ./tabby-connection-homepage/result.txt
+          # 优化预发布判断逻辑
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'dev') }}
+          files: dist.zip # 此时 dist.zip 在根目录，可以被找到
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 8. Publish on NPM
+      - name: publish on npm
+        if: ${{ ! (contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'dev')) }}
+        working-directory: ./tabby-connection-homepage
+        run: npm publish --provenance

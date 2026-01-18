@@ -1,0 +1,96 @@
+.modal-header(*ngIf='defaultsMode === "disabled"')
+    h3.m-0 {{profile.name}}
+
+.modal-header(*ngIf='defaultsMode !== "disabled"')
+    h3.m-0(
+        translate='Defaults for {type}',
+        [translateParams]='{type: profileProvider.name}'
+    )
+
+.modal-body
+    .row
+        .col-12.col-lg-4
+            .mb-3(*ngIf='defaultsMode === "disabled"')
+                label(translate) Name
+                input.form-control(
+                    type='text',
+                    autofocus,
+                    [(ngModel)]='profile.name',
+                )
+
+            .mb-3(*ngIf='defaultsMode === "disabled"')
+                label(translate) Group
+                input.form-control(
+                    type='text',
+                    alwaysVisibleTypeahead,
+                    placeholder='Ungrouped',
+                    [(ngModel)]='profileGroup',
+                    [ngbTypeahead]='groupTypeahead',
+                    [inputFormatter]="groupFormatter",
+			        [resultFormatter]="groupFormatter",
+			        [editable]="false"
+                )
+
+            .mb-3(*ngIf='defaultsMode === "disabled"')
+                label(translate) Icon
+                .input-group
+                    input.form-control(
+                        type='text',
+                        alwaysVisibleTypeahead,
+                        [(ngModel)]='profile.icon',
+                        [ngbTypeahead]='iconSearch',
+                        [resultTemplate]='rt'
+                    )
+                    .input-group-text
+                        profile-icon(
+                            [icon]='profile.icon',
+                            [color]='profile.color'
+                        )
+
+                ng-template(#rt,let-r='result',let-t='term')
+                    i([class]='"fa-fw " + r')
+                    ngb-highlight.ms-2([result]='r', [term]='t')
+
+            .form-line
+                .header
+                    .title(translate) Color
+                input.form-control.w-50(
+                    type='text',
+                    [(ngModel)]='profile.color',
+                    placeholder='#000000',
+                    [ngbTypeahead]='colorsAutocomplete',
+                    [resultFormatter]='colorsFormatter'
+                )
+
+            .form-line
+                .header
+                    .title(translate) Disable dynamic tab title
+                    .description(translate) Connection name will be used instead
+                toggle([(ngModel)]='profile.disableDynamicTitle')
+
+            .form-line
+                .header
+                    .title(translate) When a session ends
+                    .description(*ngIf='profile.behaviorOnSessionEnd == "auto"', translate) Only close the tab when session is explicitly terminated
+                select.form-control(
+                    [(ngModel)]='profile.behaviorOnSessionEnd',
+                )
+                    option(ngValue='auto', translate) Auto
+                    option(ngValue='keep', translate) Keep
+                    option(*ngIf='isConnectable()', ngValue='reconnect', translate) Reconnect
+                    option(ngValue='close', translate) Close
+            
+            .form-line(*ngIf='isConnectable()')
+                .header
+                    .title(translate) Clear terminal after connection
+                toggle(
+                    [(ngModel)]='profile.clearServiceMessagesOnConnect',
+                )
+            .mb-4
+
+        .col-12.col-lg-8(*ngIf='this.profileProvider.settingsComponent')
+            ng-template(#placeholder)
+
+.modal-footer
+    button.btn.btn-primary((click)='save()', translate) Save
+    button.btn.btn-danger((click)='cancel()', translate) Cancel

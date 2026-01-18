@@ -1,0 +1,54 @@
+.content
+    .header-section
+        .d-flex.justify-content-between.align-items-center
+            h3(translate="opaqueglasshomepage.ui.connections")
+            button.btn.btn-primary((click)="createConnection()")
+                i.fas.fa-plus.me-2
+                span(translate="opaqueglasshomepage.ui.newprofile")
+
+        .form-group.my-3
+            input.form-control(
+                type="text",
+                [placeholder]="'opaqueglasshomepage.ui.searchPlaceholder' | translate",
+                [(ngModel)]="searchQuery",
+                (input)="searchConnections()",
+                (keyup.enter)="onSearchEnter()",
+                (keyup.control.enter)="onQuickConnect()",
+                (keyup.meta.enter)="onQuickConnect()"
+            )
+
+    .scroll-container
+        div(*ngFor="let group of groups")
+            h5.group-title([title]="group.name") {{ group.name }}
+            .connection-group
+                div(*ngFor="let conn of group.connections")
+                    .card.clickable-card((click)="openConnection(conn)")
+                        .card-options((click)="$event.stopPropagation()")
+                            div(ngbDropdown, placement="bottom-end", container="body")
+                                //- 添加 container="body" 会将下拉菜单直接挂载到 <body> 标签下
+                                //- 这样它就彻底脱离了 .card 的布局限制，永远不会被遮挡
+                                button.btn.btn-link.text-muted(ngbDropdownToggle)
+                                    i.fas.fa-ellipsis-v
+                                div(ngbDropdownMenu)
+                                    // ... 菜单项
+                                    button.dropdown-item(ngbDropdownItem, (click)="editConnection(conn)")
+                                        i.fas.fa-fw.fa-edit.me-2
+                                        span(translate) Edit
+                                    button.dropdown-item(ngbDropdownItem, (click)="cloneConnection(conn)")
+                                        i.fas.fa-fw.fa-copy.me-2
+                                        span(translate) Duplicate
+                                    .dropdown-divider
+                                    button.dropdown-item.text-danger(ngbDropdownItem, (click)="deleteConnection(conn)")
+                                        i.fas.fa-fw.fa-trash.me-2
+                                        span(translate) Delete
+                        .card-body
+                            .d-flex.align-items-center
+                                span.svg-icon(*ngIf="conn.icon", [class]="conn.icon", [style.color]="conn.color")
+                                h6.ms-2([title]="conn.name") {{ conn.name }}
+                            
+                            .info-text
+                                p.mb-0 {{ conn.options?.host || 'Local' }}
+                                p.mb-0 {{ conn.type }} | {{ conn.options?.user || 'N/A' }}
+    .footer-help(translate="opaqueglasshomepage.ui.help")
+    
+    

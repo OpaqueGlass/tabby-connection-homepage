@@ -1,0 +1,8 @@
+profile-icon {
+    width: 1.25rem;
+    margin-right: 0.25rem;
+}
+
+profile-icon + * {
+    margin-left: 10px;
+}

@@ -1,0 +1,36 @@
+h3(translate='opaqueglasshomepage.settings.title')
+
+h3(translate='opaqueglasshomepage.settings.general')
+
+.form-line
+    .header
+        .title(translate='opaqueglasshomepage.settings.auto_init')
+        .description(translate='opaqueglasshomepage.settings.auto_init_desc')
+    toggle(
+        [(ngModel)]='config.store.ogHomepagePlugin.autoInit',
+        (ngModelChange)='config.save()',
+    )
+
+h3(translate='opaqueglasshomepage.debug.title')
+
+.form-line
+    .header
+        .title(translate='opaqueglasshomepage.debug.enable_debug')
+        .description(translate='opaqueglasshomepage.debug.log_level_desc')
+    input.form-control(
+        type='number',
+        max=4,
+        min=-2,
+        [(ngModel)]='config.store.ogHomepagePlugin.debugLevel',
+        (ngModelChange)='config.save()',
+    )
+
+.footer-of-setting
+    div() 
+        span(translate='opaqueglasshomepage.support.give_star_prefix') 
+        a.og-tac-a((click)='openGithub()',translate='opaqueglasshomepage.support.give_star_link')
+        span(translate='opaqueglasshomepage.support.give_star_suffix')
+    //- div()
+    //-     span(translate='opaqueglasshomepage.support.issue_prefix') 
+    //-     a.og-tac-a((click)='openNewIssue()',translate='opaqueglasshomepage.support.issue_link')
+    //-     span(translate='opaqueglasshomepage.support.issue_suffix')

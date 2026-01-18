@@ -1,0 +1,163 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 1.5rem 2rem;
+  overflow: hidden;
+  width: 100%; 
+  max-width: 100%; 
+  box-sizing: border-box;
+
+  .header-section {
+    flex-shrink: 0;
+    // 确保头部也不会撑开容器
+    width: 100%;
+    margin-bottom: 0.5rem;
+    
+    h3 { font-size: 1.8rem; font-weight: 800; color: var(--bs-body-color); }
+    .form-control {
+      border-radius: 8px; padding: 0.75rem 1.25rem;
+      transition: all 0.3s;
+      &:focus { border-color: #007bff; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15); }
+    }
+  }
+
+  .scroll-container {
+    flex-grow: 1;    // 自动占据中间剩余的所有空间
+    flex-shrink: 1;  // 当底部内容变多时，容器可以收缩
+    overflow-y: auto;
+    overflow-x: hidden; // 禁止横向溢出
+    margin-top: 1rem;
+    padding-right: 8px;
+
+    .group-title {
+      position: sticky; top: 0; z-index: 5;
+      font-size: 1.5rem; font-weight: 700; color: var(--bs-body-color);
+      background: var(--body-bg); 
+      padding-bottom: 0.5rem; border-bottom: 2px solid var(--theme-secondary-fg);
+    }
+
+    .connection-group {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 2.5rem;
+      
+      // 修改 3: 核心布局逻辑调整
+      // 使用 auto-fill，并将最大宽度限制在 1fr (等分) 或固定的 px 
+      // 这里的 minmax(160px, 280px) 确保了单个项目最小 160px，最大 280px
+      grid-template-columns: repeat(auto-fill, minmax(160px, 280px));
+
+      // 适配超小屏幕：如果屏幕太窄放不下 160px，则平铺
+      @media (max-width: 400px) {
+        grid-template-columns: 1fr;
+      }
+
+      // 大屏幕：虽然最多显示 8 列，但我们依然保留 280px 的最大宽度限制
+      @media (min-width: 1400px) {
+        // 如果你希望在超大屏幕下强制 8 列且每项依然有上限，可以保持 auto-fill
+        // 或者使用 repeat(8, minmax(160px, 280px))
+        grid-template-columns: repeat(8, minmax(160px, 280px));
+      }
+
+      .card {
+        position: relative;
+        overflow: hidden; // 修改 4: 内部溢出隐藏，防止文字撑开卡片
+        z-index: 1;
+        height: 110px; 
+        // 确保卡片本身不超出父级 Grid 单元格
+        width: 100%;
+        max-width: 280px; 
+        
+        border: 1px solid var(--theme-info-more);
+        border-radius: 8px;
+        background: var(--body-bg);
+        
+        .card-body {
+          padding: 1rem 0.75rem;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+
+          h6 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            padding-right: 30px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis; // 自动打省略号
+          }
+
+          .info-text {
+            p {
+              font-size: 0.85rem;
+              margin: 0;
+              color: var(--theme-fg);
+              opacity: .5;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+
+        .card-options {
+          position: absolute;
+          top: 0.4rem;
+          right: 0.4rem;
+          z-index: 5;
+        }
+
+        &:hover, &.show {
+          z-index: 10;
+          border-color: var(--bs-primary);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          transform: translateY(-2px);
+        }
+      }
+    }
+
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 10px; }
+  }
+  .footer-help {
+    flex-shrink: 0; // 确保底部提示不会被压缩消失
+    padding: 1rem 0;
+    margin-top: auto; // 确保即使内容少时也靠在最底部
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    
+    // 提示文本的样式建议
+    display: flex;
+    gap: 1.5rem;
+    color: var(--text-muted); // 使用 Tabby 变量或具体颜色
+    font-size: 0.85rem;
+
+    .help-item {
+      display: flex;
+      align-items: center;
+      
+      kbd {
+        background-color: #eee;
+        border-radius: 3px;
+        border: 1px solid #b4b4b4;
+        box-shadow: 0 1px 1px rgba(0,0,0,.2);
+        color: #333;
+        display: inline-block;
+        font-size: .85em;
+        font-weight: 700;
+        line-height: 1;
+        padding: 2px 4px;
+        margin-right: 6px;
+        white-space: nowrap;
+      }
+    }
+  }
+}
+
+::ng-deep .dropdown-menu {
+  z-index: 1050;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  border: none;
+  min-width: 120px;
+}
