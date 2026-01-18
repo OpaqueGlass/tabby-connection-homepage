@@ -11,7 +11,6 @@ export class HomepageTranslateService {
     }
     initMyTranslate() {
         const data = yaml.load(yamlFileContent);
-        this.translate.setDefaultLang('en-US');
         function transform(obj) {
             const result = {};
 
