@@ -1,5 +1,13 @@
 ## 更新日志
 
+### v1.0.2 (2026-01-26)
+
+- **修复**：非英文、中文语言下文本显示错误的问题；
+
+---
+
+- **Fixed**: The issue of incorrect text display in non-English and non-Chinese languages;
+
 ### v1.0.0 (2026-01-18)
 
 - **发布首个版本**：又不是不能用；
