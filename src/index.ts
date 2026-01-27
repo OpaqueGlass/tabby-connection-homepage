@@ -21,7 +21,7 @@ import { FormsModule } from '@angular/forms'
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
 import { ConfigProvider, ConfigService, HotkeyProvider, ToolbarButtonProvider } from 'tabby-core'
 import TabbyCoreModule from 'tabby-core'
-import { SettingsTabProvider } from 'tabby-settings'
+import { SettingsTabComponent, SettingsTabProvider } from 'tabby-settings'
 import { HomepageConfigProvider } from './configProvider'
 import { HomepageSettingsTabProvider } from './settingsTabProvider'
 import { HomepageSettingsTabComponent } from 'components/homepageSettingsTab'
@@ -32,6 +32,7 @@ import { AppService, HostAppService } from 'tabby-core'
 import { HomepageTabComponent } from 'components/homepageTab'
 import { EditProfileGroupModalComponent } from 'components/editProfileGroupModal.component'
 import { EditProfileModalComponent } from 'components/editProfileModal.component'
+import { AUTO_INIT_OPTIONS } from './constants'
 
 @NgModule({
     imports: [
@@ -61,14 +62,33 @@ export default class HomepageModule {
         app.ready$.subscribe(() => {
             translate.initMyTranslate();
             if (config.store.ogHomepagePlugin?.autoInit === false) {
+                config.store.ogHomepagePlugin.autoInit = AUTO_INIT_OPTIONS.DISABLE;
+                config.save();
+            } else if (config.store.ogHomepagePlugin?.autoInit === true) {
+                config.store.ogHomepagePlugin.autoInit = AUTO_INIT_OPTIONS.PLUGIN;
+                config.save();
+            }
+            if (config.store.ogHomepagePlugin?.autoInit === AUTO_INIT_OPTIONS.DISABLE) {
                 return;
             }
-            const homepageTab = app.tabs.find(tab => tab instanceof HomepageTabComponent)
-            if (homepageTab) {
-                app.selectTab(homepageTab)
+            let tabType: any = HomepageTabComponent;
+            let tabInputs: Record<string, any> = undefined;
+            switch (config.store.ogHomepagePlugin?.autoInit) {
+                case AUTO_INIT_OPTIONS.PLUGIN:
+                    tabType = HomepageTabComponent;
+                    break;
+                case AUTO_INIT_OPTIONS.ORIGINAL:
+                    tabType = SettingsTabComponent;
+                    tabInputs = { activeTab: 'profiles' };
+                    break;
+            }
+            const openedTab = app.tabs.find(tab => tab instanceof tabType)
+            if (openedTab) {
+                app.selectTab(openedTab);
             } else {
                 app.openNewTabRaw({
-                    type: HomepageTabComponent,
+                    type: tabType,
+                    inputs: tabInputs,
                 })
             }
         })

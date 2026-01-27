@@ -6,10 +6,18 @@ h3(translate='opaqueglasshomepage.settings.general')
     .header
         .title(translate='opaqueglasshomepage.settings.auto_init')
         .description(translate='opaqueglasshomepage.settings.auto_init_desc')
-    toggle(
+    
+    //- 将 toggle 替换为 select/dropdown 组件
+    select.form-control(
         [(ngModel)]='config.store.ogHomepagePlugin.autoInit',
-        (ngModelChange)='config.save()',
+        (ngModelChange)='config.save()'
     )
+        //- 动态渲染所有选项
+        option(
+            *ngFor='let opt of autoInitList',
+            [value]='opt.label'
+        ) {{ translate.instant(opt.label) }}
+
 
 h3(translate='opaqueglasshomepage.debug.title')
 

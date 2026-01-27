@@ -1,4 +1,4 @@
-import { Component, Injector, Input, OnInit } from '@angular/core'
+import { Component, Injector, Input, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core'
 import Fuse from 'fuse.js'
 import { v4 as uuidv4 } from 'uuid' 
 import { BaseTabComponent, ProfilesService, NotificationsService } from 'tabby-core'
@@ -7,9 +7,13 @@ import { HomepageTranslateService } from 'services/translateService'
 
 @Component({
     template: require('./homepageTab.pug'),
-    styles: [require('./homepageTab.scss')]
+    styles: [require('./homepageTab.scss')],
+    host: {
+        'style': 'display: block; width: 100%;'
+    }
 })
-export class HomepageTabComponent extends BaseTabComponent {
+export class HomepageTabComponent extends BaseTabComponent implements OnInit, AfterViewInit {
+    @ViewChild('ogchsearchInput') searchInput!: ElementRef<HTMLInputElement>;
     connections = []  // 原始的连接列表
     groups = []       // 根据分组后的数据
     allGroups = []    // 全部分组数据（用于搜索还原）
@@ -34,11 +38,15 @@ export class HomepageTabComponent extends BaseTabComponent {
         this.connections = allProfiles
         // 初始化分组
         this.refreshGroups()
-        // 初始化搜索（Fuse.js 配置）
         this.fuse = new Fuse(this.connections, {
             keys: ['name', 'options.host', 'type', 'options.user'],
-            threshold: 0.5, // 搜索相似度阈值
+            threshold: 0.5,
         })
+    }
+    ngAfterViewInit() {
+        setTimeout(() => {
+            this.searchInput.nativeElement.focus();
+        }, 0);
     }
     async refreshGroups() {
         // 1. 调用你提供的接口获取分组数据
