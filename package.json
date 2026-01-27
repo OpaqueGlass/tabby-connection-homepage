@@ -1,6 +1,6 @@
 {
   "name": "tabby-connection-homepage",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Display all connection configurations in a single tab",
   "repository": {
     "url": "git+https://github.com/OpaqueGlass/tabby-connection-homepage.git"
