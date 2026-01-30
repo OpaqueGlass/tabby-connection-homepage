@@ -1,10 +1,12 @@
 import { Component, Injector, Input, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core'
 import Fuse from 'fuse.js'
 import { v4 as uuidv4 } from 'uuid' 
-import { BaseTabComponent, ProfilesService, NotificationsService } from 'tabby-core'
+import { BaseTabComponent, ProfilesService, NotificationsService, Profile, PartialProfile } from 'tabby-core'
 import { ProfileManagementService } from 'services/profileManagementService'
 import { HomepageTranslateService } from 'services/translateService'
-
+import { TranslateService } from "tabby-core";
+import { MyLogger } from 'services/myLogService'
+import { orderBy } from 'natural-orderby';
 @Component({
     template: require('./homepageTab.pug'),
     styles: [require('./homepageTab.scss')],
@@ -19,17 +21,25 @@ export class HomepageTabComponent extends BaseTabComponent implements OnInit, Af
     allGroups = []    // 全部分组数据（用于搜索还原）
     @Input() searchQuery = ''  // 搜索查询输入内容
     fuse: Fuse<any>   // Fuse.js 搜索实例
+    searchDebounceTimer: any = null; // 防抖定时器引用
 
     constructor(
         private profilesService: ProfilesService,
         private profileMgr: ProfileManagementService,
-        private translate: HomepageTranslateService,
+        private translate: TranslateService,
+        private logger: MyLogger,
         injector: Injector,
         private notificationService: NotificationsService,
     ) {
         super(injector)
         this.setTitle('Homepage')
         this.icon = 'fas fa-house'
+        this.focused$.subscribe(() => {
+            // 当标签页获得焦点时，刷新分组数据
+            this.refreshGroups(false);
+            this.searchConnections();
+            this.logger.log('Homepage tab focused, refreshed groups and search.');
+        });
     }
 
     async ngOnInit() {
@@ -48,43 +58,107 @@ export class HomepageTabComponent extends BaseTabComponent implements OnInit, Af
             this.searchInput.nativeElement.focus();
         }, 0);
     }
-    async refreshGroups() {
-        // 1. 调用你提供的接口获取分组数据
-        // 设置 includeProfiles: true 自动完成 ID 匹配
-        // 设置 includeNonUserGroup: true 处理 'Ungrouped' 和 'Built-in'
-        // @ts-ignore
-        const fetchedGroups = await this.profilesService.getProfileGroups({ 
-            includeProfiles: true, 
-            includeNonUserGroup: true 
-        });
+    async refreshGroups(refreshAll: boolean = true) {
+        // 1. 并发获取数据
+        const [recentProfiles, fetchedGroups] = await Promise.all([
+            this.profilesService.getRecentProfiles(),
+            this.profilesService.getProfileGroups({ 
+                includeProfiles: true, 
+                includeNonUserGroup: this.config.store.terminal.showBuiltinProfiles 
+            })
+        ]);
 
-        // 2. 统一映射数据结构，确保 HTML 模板中的变量名一致
-        // 这里的 x.profiles 对应你 HTML 里的 conn
-        this.allGroups = fetchedGroups.map(group => ({
+        // 定义内部处理函数：清洗数据并进行组内升序排序
+        const processConnections = (profiles: PartialProfile<Profile>[]) => {
+            const processed = (profiles || []).map(conn => {
+                const iconValue = conn.icon || 'fas fa-desktop';
+                return {
+                    ...conn,
+                    icon: iconValue,
+                    isHTML: iconValue.trim().startsWith('<svg')
+                };
+            });
+            
+            // 连接内部按照名称 (name) 升序排序
+            return orderBy(processed, [v => v.name]);
+        };
+
+        // 2. 构建 "Recent" 分组 (Recent 始终排第一，不参与后续的分组排序)
+        const recentGroup = {
+            id: 'recent',
+            name: this.translate.instant('Recent'),
+            connections: processConnections(recentProfiles)
+        };
+
+        // 3. 处理并映射普通分组
+        let mappedGroups = fetchedGroups.map(group => ({
             id: group.id,
             name: group.name,
-            connections: group.profiles || [] // 将 profiles 映射为 connections 方便模板统一
-        })).filter(group => group.connections.length > 0); // (可选) 隐藏没有内容的空组
+            connections: processConnections(group.profiles)
+        })).filter(group => group.connections.length > 0);
 
-        this.groups = [...this.allGroups];
+        // 4. 分组排序逻辑
+        const getGroupWeight = (id: string) => {
+            if (id === 'ungrouped') return 1;
+            if (id.startsWith('Imported-from-')) return 2;
+            if (id === 'built-in') return 3;
+            return 0; // 普通分组权重最低，排在前面
+        };
+
+        mappedGroups = orderBy(
+            mappedGroups,
+            [
+                v => getGroupWeight(v.id), // 首先按权重排序 (0 < 1 < 2 < 3)
+                v => v.name                // 权重相同时（即都是普通分组时），按名称升序
+            ]
+        );
+
+        // 5. 合并数据：确保 Recent 在首位
+        const finalGroups = [];
+        if (recentGroup.connections.length > 0) {
+            finalGroups.push(recentGroup);
+        }
+        finalGroups.push(...mappedGroups);
+
+        this.allGroups = finalGroups;
+        if (refreshAll) {
+            this.groups = [...this.allGroups];
+        }
+        this.logger.log('Refreshed and sorted groups:', this.groups);
     }
 
-    // 搜索逻辑
+    onCompositionEnd(event: any) {
+        this.searchQuery = event.target.value;
+        this.searchConnections();
+    }
+
     searchConnections() {
-        const query = this.searchQuery.trim().toLowerCase();
-        if (!query) {
-            this.groups = [...this.allGroups];
-            return;
+        // 清除之前的定时器
+        if (this.searchDebounceTimer) {
+            clearTimeout(this.searchDebounceTimer);
         }
 
-        // 在每个组内过滤连接，并只保留含有匹配结果的分组
-        this.groups = this.allGroups.map(group => {
-            const filteredConns = group.connections.filter(conn => 
-                conn.name.toLowerCase().includes(query) || 
-                (conn.options?.host && conn.options.host.toLowerCase().includes(query))
-            );
-            return { ...group, connections: filteredConns };
-        }).filter(group => group.connections.length > 0);
+        // 设置 300ms 延迟执行
+        this.searchDebounceTimer = setTimeout(() => {
+            const query = this.searchQuery.trim().toLowerCase();
+                
+            if (!query) {
+                this.groups = [...this.allGroups];
+                return;
+            }
+
+            // 执行过滤逻辑
+            this.groups = this.allGroups.map(group => {
+                const filteredConns = group.connections.filter(conn => 
+                    conn.name.toLowerCase().includes(query) || 
+                    (conn.options?.host && conn.options.host.toLowerCase().includes(query))
+                );
+                return { ...group, connections: filteredConns };
+            }).filter(group => group.connections.length > 0);
+
+            // 重置定时器引用
+            this.searchDebounceTimer = null;
+        }, 300); // 300ms 是搜索框常用的防抖时间
     }
     openConnection(conn) {
         this.profilesService.launchProfile(conn)

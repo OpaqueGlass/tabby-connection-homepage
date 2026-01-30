@@ -26,13 +26,16 @@ opaqueglasshomepage:
       zh_CN: 匹配数量足够的情况下，无论如何设定，各启用类型至少显示3个。
     option_plugin:
       en_US: "Homepage created by the plugin"
-      zh_CN: "插件创建的主页"
+      zh_CN: "本插件创建的主页"
     option_original:
       en_US: Tabby's Profiles & Connections
       zh_CN: Tabby设置-配置和连接选项卡
     option_disable:
       en_US: Disable
       zh_CN: 禁用
+    option_profile_selector:
+      en_US: Tabby's Profile Selector
+      zh_CN: Tabby配置文件选择器
 
   # AI相关设置
   ai:
@@ -114,7 +117,7 @@ opaqueglasshomepage:
       en_US: New Profile
       zh_CN: 新连接
     connections:
-      en_US: connections
+      en_US: Profiles & Connections
       zh_CN: 配置和连接
     searchPlaceholder:
       en_US: Search connections...

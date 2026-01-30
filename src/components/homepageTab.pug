@@ -15,7 +15,8 @@
                 (input)="searchConnections()",
                 (keyup.enter)="onSearchEnter()",
                 (keyup.control.enter)="onQuickConnect()",
-                (keyup.meta.enter)="onQuickConnect()"
+                (keyup.meta.enter)="onQuickConnect()",
+                (compositionend)="onCompositionEnd($event)"
             )
 
     .scroll-container
@@ -44,12 +45,23 @@
                                         span(translate) Delete
                         .card-body
                             .d-flex.align-items-center
-                                span.svg-icon(*ngIf="conn.icon", [class]="conn.icon", [style.color]="conn.color")
+                                i.icon.fa-fw(
+                                    *ngIf="conn.icon && !conn.icon.startsWith('<')", 
+                                    [class]="conn.icon", 
+                                    [style.color]="conn.color"
+                                )
+                                //- 情况 B: 处理内联 SVG 字符串
+                                //- 假设 fastHtmlBind 是你项目中处理 HTML 绑定的工具
+                                .icon(
+                                    *ngIf="conn.icon && conn.icon.startsWith('<')", 
+                                    [fastHtmlBind]="conn.icon", 
+                                    [style.color]="conn.color"
+                                )
                                 h6.ms-2([title]="conn.name") {{ conn.name }}
                             
                             .info-text
-                                p.mb-0 {{ conn.options?.host || 'Local' }}
-                                p.mb-0 {{ conn.type }} | {{ conn.options?.user || 'N/A' }}
+                                p.mb-0 {{ conn.type }}, {{ conn.options?.host || 'N/A' }}, {{ conn.options?.user || 'N/A' }}
+                                //- p.mb-0 {{ conn.type }} | {{ conn.options?.user || 'N/A' }}
     .footer-help(translate="opaqueglasshomepage.ui.help")
     
     

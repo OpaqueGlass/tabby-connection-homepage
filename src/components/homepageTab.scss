@@ -56,19 +56,19 @@
       @media (min-width: 1400px) {
         // 如果你希望在超大屏幕下强制 8 列且每项依然有上限，可以保持 auto-fill
         // 或者使用 repeat(8, minmax(160px, 280px))
-        grid-template-columns: repeat(8, minmax(160px, 280px));
+        grid-template-columns: repeat(6, minmax(160px, 350px));
       }
 
       .card {
         position: relative;
         overflow: hidden; // 修改 4: 内部溢出隐藏，防止文字撑开卡片
         z-index: 1;
-        height: 110px; 
+        height: 90px; 
+        box-sizing: border-box;
         // 确保卡片本身不超出父级 Grid 单元格
         width: 100%;
-        max-width: 280px; 
         
-        border: 1px solid var(--theme-info-more);
+        border: 1px solid var(--theme-bg-less-2);
         border-radius: 8px;
         background: var(--body-bg);
         
@@ -78,6 +78,21 @@
           display: flex;
           flex-direction: column;
           justify-content: space-between;
+          .icon {
+              width: 1.25rem;
+              height: 1.25rem;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 1.1rem; // 针对 FontAwesome 类名
+
+              // 针对内部插入的 SVG 标签
+              ::ng-deep svg {
+                  width: 100%;
+                  height: 100%;
+                  fill: currentColor; 
+              }
+          }
 
           h6 {
             font-size: 1.1rem;
@@ -110,10 +125,7 @@
         }
 
         &:hover, &.show {
-          z-index: 10;
-          border-color: var(--bs-primary);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          transform: translateY(-2px);
+          background-color: var(--theme-secondary);
         }
       }
     }

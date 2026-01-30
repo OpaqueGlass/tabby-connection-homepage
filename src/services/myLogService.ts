@@ -13,9 +13,9 @@ export class MyLogger {
       ) {
         this.name = 'connection-homepage';
         // tabby的Logger不支持,继续传参，只能类似%d这样的模板字符串，我们这边还是自定义省心点
-        this.logLevel = configService.store?.ogConnectHomepage?.debugLevel ?? 3;
+        this.logLevel = configService.store?.ogHomepagePlugin?.debugLevel ?? 3;
         configService.changed$.subscribe(() => {
-            this.setLogLevel(configService.store.ogConnectHomepage.debugLevel);
+            this.setLogLevel(configService.store.ogHomepagePlugin.debugLevel);
         });
     }
 

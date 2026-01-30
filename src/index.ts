@@ -19,7 +19,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
-import { ConfigProvider, ConfigService, HotkeyProvider, ToolbarButtonProvider } from 'tabby-core'
+import { ConfigProvider, ConfigService, HotkeyProvider, ProfilesService, ToolbarButtonProvider } from 'tabby-core'
 import TabbyCoreModule from 'tabby-core'
 import { SettingsTabComponent, SettingsTabProvider } from 'tabby-settings'
 import { HomepageConfigProvider } from './configProvider'
@@ -57,7 +57,7 @@ import { AUTO_INIT_OPTIONS } from './constants'
 })
 export default class HomepageModule { 
     constructor(
-        hostApp: HostAppService, app: AppService, config: ConfigService, translate: HomepageTranslateService
+        hostApp: HostAppService, app: AppService, config: ConfigService, translate: HomepageTranslateService, profilesService: ProfilesService
     ) {
         app.ready$.subscribe(() => {
             translate.initMyTranslate();
@@ -81,6 +81,17 @@ export default class HomepageModule {
                     tabType = SettingsTabComponent;
                     tabInputs = { activeTab: 'profiles' };
                     break;
+                case AUTO_INIT_OPTIONS.PROFILE_SELECTOR:
+                    tabType = null;
+                    profilesService.showProfileSelector().then(selectedProfile => {
+                        if (selectedProfile) {
+                            profilesService.launchProfile(selectedProfile)
+                        }
+                    }).catch(err => {console.warn('Failed to launch profile from selector:', err);});
+                    break;
+            }
+            if (tabType === null) {
+                return;
             }
             const openedTab = app.tabs.find(tab => tab instanceof tabType)
             if (openedTab) {
