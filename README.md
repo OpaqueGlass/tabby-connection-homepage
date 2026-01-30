@@ -5,9 +5,10 @@ This is an SSH connection homepage plugin for [Tabby](https://github.com/Eugeny/
 
 ## Features
 
-- Reads SSH connections from configuration files
-- Provides a tab page to display the SSH connection homepage
-- Enables quick connections via existing SSH configurations
+- Read SSH connections from the configuration file
+- Provide a tab to display the SSH connection homepage, with support for configuration editing, cloning and deletion
+- Quick connection via existing SSH configurations
+- Use the configuration selector or the Configuration and Connection tab as the homepage opened on startup
 
 ## Quick Start
 
