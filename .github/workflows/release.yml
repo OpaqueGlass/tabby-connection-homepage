@@ -16,17 +16,30 @@ jobs:
       # 1. Checkout 主项目
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: tabby-connection-homepage
 
-      # 2. Install Node.js
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Get CHANGELOGS
+        run: python ./scripts/release_note.py
+      
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: result.txt
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'dev') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
           cache: "yarn"
-          cache-dependency-path: tabby-connection-homepage/yarn.lock
+          cache-dependency-path: yarn.lock
 
       - name: Update npm
         run: npm install -g npm@11.7.0
@@ -34,46 +47,16 @@ jobs:
       - name: Setup yarn
         run: npm i -g yarn
 
-      # 3. Install dependencies
       - name: Install dependencies
-        working-directory: ./tabby-connection-homepage
         run: yarn install
 
-      # 4. Build for production (跳过 TS 检查)
       - name: Build for production
-        working-directory: ./tabby-connection-homepage
         run: |
           yarn build
         env:
           TSC_COMPILE_ON_ERROR: true
           ESLINT_NO_DEV_ERRORS: true
 
-      # 5. Package as zip file
-      - name: Zip it
-        run: zip -r dist.zip ./tabby-connection-homepage/dist/
-
-      # 6. Get changelog
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Get CHANGELOGS
-        working-directory: ./tabby-connection-homepage
-        run: python ./scripts/release_note.py
-      
-      # 7. Create GitHub Release
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          body_path: ./tabby-connection-homepage/result.txt
-          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'dev') }}
-          files: dist.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # 8. Publish on NPM
       - name: publish on npm
         if: ${{ ! (contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'dev')) }}
-        working-directory: ./tabby-connection-homepage
         run: npm publish --provenance
