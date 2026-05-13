@@ -67,10 +67,12 @@ body:
       label: Check list
       description: Please confirm the following things before raising an issue.
       options:
-      - label: I have checked the issue list and believe no one has reported a similar issue
-        required: true
-      - label: I have updated the plugin to the latest version
-        required: true
+        - label: I have searched the issue list and believe no one has reported a similar problem.  
+        - label: I have updated the plugin to the latest version.  
+        - label: My report does not meet the requirements; please ignore or close this issue.  
+        - label: I consider this issue serious and requiring prompt attention; I have mentioned (@) the author in the "Additional Information" section.  
+        - label: My description is incomplete or missing details; developers may ignore or close this issue.  
+        - label: I have provided the Tabby version and plugin version.
 
   - type: textarea
     id: additional-info

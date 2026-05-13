@@ -65,12 +65,14 @@ body:
     id: check_list
     attributes:
       label: 检查单
-      description: 在提交前，请确认这些事项
+      description: 在提交前，请确认这些事项。（不符合要求的issue可能会被开发者忽略或关闭）
       options:
-      - label: 我已经查询了issue列表，我认为没有人反馈过类似问题
-        required: true
-      - label: 我已经将插件升级到最新版本
-        required: true
+      - label: 我已经查询了issue列表，我认为没有人反馈过类似问题；
+      - label: 我已经将插件升级到最新版本；
+      - label: 我的反馈不符合要求，请开发者忽略或关闭此 issue；
+      - label: 我认为这个问题比较严重，需要尽快处理，我已在“其他补充信息”中 @ 了作者；
+      - label: 我的描述存在缺漏，开发者可以忽略或关闭此 issue；
+      - label: 我填写了Tabby版本号、插件版本号；
 
   - type: textarea
     id: additional-info
