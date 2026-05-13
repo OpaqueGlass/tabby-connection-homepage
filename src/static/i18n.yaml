@@ -10,8 +10,8 @@ opaqueglasshomepage:
       en_US: "Auto Start"
       zh_CN: "自动启动"
     auto_init_desc:
-      en_US: "Auto open \"Homepage\" tab while Tabby started"
-      zh_CN: "在Tabby启动时，自动打开“连接主页”"
+      en_US: "Automatically open the homepage when Tabby starts. The startup homepage is optional; in addition to the homepage created by this plugin, the Profile Selector can also be used."
+      zh_CN: "在Tabby启动时，自动打开主页。启动的主页是可选的，在选择框了解更多。"
     enable_on_startup:
       en_US: "Enable completion when startup"
       zh_CN: "在Tabby启动后，启用命令补全提示"
@@ -25,7 +25,7 @@ opaqueglasshomepage:
       en_US: When there are enough matches, regardless of the settings, at least 3 items of each enabled type will be displayed.
       zh_CN: 匹配数量足够的情况下，无论如何设定，各启用类型至少显示3个。
     option_plugin:
-      en_US: "Homepage created by the plugin"
+      en_US: "Homepage created by this plugin"
       zh_CN: "本插件创建的主页"
     option_original:
       en_US: Tabby's Profiles & Connections
@@ -128,6 +128,9 @@ opaqueglasshomepage:
     help:
       en_US: "Press Enter to connect to the first search result when results are displayed. Enter the address and press Ctrl+Enter to connect quickly."
       zh_CN: "按下Enter则连接第一个检索结果；输入地址后按下 Ctrl+Enter 快速连接"
+    searchResult:
+      en_US: "Search Result"
+      zh_CN: "检索结果"
 
   # 支持和反馈
   support:

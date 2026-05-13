@@ -7,6 +7,7 @@ export class HomepageConfigProvider extends ConfigProvider {
         ogHomepagePlugin: {
             debugLevel: 3,
             autoInit: AUTO_INIT_OPTIONS.PLUGIN,
+            doubleClickToOpen: false,
         },
         hotkeys: {
             'oghomepage_open': [],

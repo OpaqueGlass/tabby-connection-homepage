@@ -17,10 +17,10 @@ import { orderBy } from 'natural-orderby';
 export class HomepageTabComponent extends BaseTabComponent implements OnInit, AfterViewInit {
     @ViewChild('ogchsearchInput') searchInput!: ElementRef<HTMLInputElement>;
     connections = []  // 原始的连接列表
-    groups = []       // 根据分组后的数据
+    groups: any[] = []       // 根据分组后的数据
     allGroups = []    // 全部分组数据（用于搜索还原）
     @Input() searchQuery = ''  // 搜索查询输入内容
-    fuse: Fuse<any>   // Fuse.js 搜索实例
+    fuse: Fuse<any>|null = null   // Fuse.js 搜索实例
     searchDebounceTimer: any = null; // 防抖定时器引用
 
     constructor(
@@ -48,10 +48,6 @@ export class HomepageTabComponent extends BaseTabComponent implements OnInit, Af
         this.connections = allProfiles
         // 初始化分组
         this.refreshGroups()
-        this.fuse = new Fuse(this.connections, {
-            keys: ['name', 'options.host', 'type', 'options.user'],
-            threshold: 0.5,
-        })
     }
     ngAfterViewInit() {
         setTimeout(() => {
@@ -147,18 +143,24 @@ export class HomepageTabComponent extends BaseTabComponent implements OnInit, Af
                 return;
             }
 
-            // 执行过滤逻辑
-            this.groups = this.allGroups.map(group => {
-                const filteredConns = group.connections.filter(conn => 
-                    conn.name.toLowerCase().includes(query) || 
-                    (conn.options?.host && conn.options.host.toLowerCase().includes(query))
-                );
-                return { ...group, connections: filteredConns };
-            }).filter(group => group.connections.length > 0);
+            this.fuse = new Fuse(this.connections, {
+                useTokenSearch: true,
+                keys: ['name', 'options.host', 'options.user'],
+                threshold: 0.3,
+            })
+            const results = this.fuse.search(query);
+            this.logger.log("result", results);
+            const matchedItems = results.map(result => result.item);
+
+            this.groups = [{
+                id: 'search-results',
+                name: this.translate.instant('opaqueglasshomepage.ui.searchResult'),
+                connections: matchedItems
+            }];
 
             // 重置定时器引用
             this.searchDebounceTimer = null;
-        }, 300); // 300ms 是搜索框常用的防抖时间
+        }, 300);
     }
     openConnection(conn) {
         this.profilesService.launchProfile(conn)
