@@ -19,7 +19,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
-import { ConfigProvider, ConfigService, HotkeyProvider, ProfilesService, ToolbarButtonProvider } from 'tabby-core'
+import { CommandProvider, ConfigProvider, ConfigService, HotkeyProvider, ProfilesService, ToolbarButtonProvider } from 'tabby-core'
 import TabbyCoreModule from 'tabby-core'
 import { SettingsTabComponent, SettingsTabProvider } from 'tabby-settings'
 import { HomepageConfigProvider } from './configProvider'
@@ -33,6 +33,7 @@ import { HomepageTabComponent } from 'components/homepageTab'
 import { EditProfileGroupModalComponent } from 'components/editProfileGroupModal.component'
 import { EditProfileModalComponent } from 'components/editProfileModal.component'
 import { AUTO_INIT_OPTIONS } from './constants'
+import { HomepageCommandProvider } from 'commandProvider'
 
 @NgModule({
     imports: [
@@ -46,6 +47,7 @@ import { AUTO_INIT_OPTIONS } from './constants'
         { provide: SettingsTabProvider, useClass: HomepageSettingsTabProvider, multi: true },
         { provide: HotkeyProvider, useClass: AutoCompleteHotkeyProvider, multi: true },
         { provide: ToolbarButtonProvider, useClass: ButtonProvider, multi: true },
+        { provide: CommandProvider, useClass: HomepageCommandProvider, multi: true },
         HomepageTranslateService,
     ],
     declarations: [

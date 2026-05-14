@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core'
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AppService, ConfigService, HostWindowService, HotkeysService, ToolbarButton, ToolbarButtonProvider } from 'tabby-core';
+import { AppService, Command, CommandLocation, CommandProvider, ConfigService, HostWindowService, HotkeysService, ToolbarButton, ToolbarButtonProvider, TranslateService } from 'tabby-core';
 import { inputInitScripts, sendInput } from 'utils/commonUtils';
 import { Subject } from "rxjs";
 import { MySignalService } from 'services/signalService';
 import { HomepageTabComponent } from 'components/homepageTab';
 
 @Injectable()
-export class ButtonProvider extends ToolbarButtonProvider {
+export class HomepageCommandProvider extends CommandProvider {
     private recentDialogRef: any;
 
     private currentStatus: boolean;
@@ -20,19 +20,10 @@ export class ButtonProvider extends ToolbarButtonProvider {
         private ngbModal: NgbModal,
         private signalService: MySignalService,
         private configService: ConfigService,
+        private translate: TranslateService,
     ) {
         super();
         this.currentStatus = configService.store?.ogAutoCompletePlugin?.enableCompleteWithCompleteStart;
-        // 仅注册在 ToolbarButtonProvider 中有效？
-        hotkeys.hotkey$.subscribe(async (hotkey) => {
-            if (hotkey === 'oghomepage_open') {
-                this.openHomepage();
-            }
-        });
-    }
-
-    private openDevTools() {
-        this.hostWnd.openDevTools();
     }
 
     private openHomepage() {
@@ -46,20 +37,25 @@ export class ButtonProvider extends ToolbarButtonProvider {
         }
     }
 
-    provide(): ToolbarButton[] {
-        return [];
-        // const that = this;
-        // if (this.configService.store.ogHomepagePlugin?.btnOnLeftToolbar === true) {
-        //     return [];
-        // }
-        // return [{
-        //     icon: require('./icons/house.svg'),
-        //     weight: 5,
-        //     title: 'Open Homepage',
-        //     touchBarNSImage: 'NSTouchBarComposeTemplate',
-        //     click: async () => {
-        //         that.openHomepage();
-        //     }
-        // }];
+    async provide(): Promise<Command[]> {
+        const that = this;
+        const showLocations = [CommandLocation.StartPage];
+        if (this.configService.store.ogHomepagePlugin?.btnOnLeftToolbar) {
+            showLocations.push(CommandLocation.LeftToolbar);
+        } else {
+            showLocations.push(CommandLocation.RightToolbar);
+        }
+        return [
+            {
+                id: 'ogHomepage:open-homepage',
+                locations: showLocations,
+                label: this.translate.instant('Open Homepage'),
+                icon: require('./icons/house.svg'),
+                weight: this.configService.store.ogHomepagePlugin?.homepageBtnWeight ?? 0,
+                run: async () => {
+                    that.openHomepage();
+                },
+            },
+        ];
     }
 }

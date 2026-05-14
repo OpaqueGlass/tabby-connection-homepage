@@ -36,6 +36,19 @@ opaqueglasshomepage:
     option_profile_selector:
       en_US: Tabby's Profile Selector
       zh_CN: Tabby配置文件选择器
+    btnOnLeftToolbar:
+      en_US: "Show homepage button on the left toolbar"
+      zh_CN: "在左侧工具栏显示主页按钮"
+    btnOnLeftToolbar_desc:
+      en_US: "When enabled, a homepage button will be added to the left toolbar for quick access. Restart Tabby for the changes to take effect."
+      zh_CN: "启用后，在左侧工具栏会增加一个主页按钮，方便快速访问。修改此项后需要重启Tabby才能生效。"
+    homepageBtnWeight:
+      en_US: "Homepage button weight"
+      zh_CN: "主页按钮权重"
+    homepageBtnWeight_desc:
+      en_US: "The weight of the homepage button in the toolbar. The smaller the value, the more forward it is displayed. The default value is 0. Adjusting this value may cause the button to be displayed in an unexpected position, please adjust it with caution. Restart Tabby for the changes to take effect."
+      zh_CN: "工具栏中主页按钮的权重，值越小越靠前显示。默认值为0，调整此值可能会导致按钮显示在意想不到的位置，请谨慎调整。修改此项后需要重启Tabby才能生效。"
+
 
   # AI相关设置
   ai:

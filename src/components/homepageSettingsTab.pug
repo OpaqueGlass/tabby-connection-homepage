@@ -18,6 +18,26 @@ h3(translate='opaqueglasshomepage.settings.general')
             [value]='opt.label'
         ) {{ translate.instant(opt.label) }}
 
+h3(translate='opaqueglasshomepage.appearance.title')
+
+.form-line
+    .header
+        .title(translate='opaqueglasshomepage.settings.btnOnLeftToolbar')
+        .description(translate='opaqueglasshomepage.settings.btnOnLeftToolbar_desc')
+    toggle(
+        [(ngModel)]='config.store.ogHomepagePlugin.btnOnLeftToolbar',
+        (ngModelChange)='config.save()',
+    )
+
+.form-line
+    .header
+        .title(translate='opaqueglasshomepage.settings.homepageBtnWeight')
+        .description(translate='opaqueglasshomepage.settings.homepageBtnWeight_desc')
+    input.form-control(
+        type='number',
+        [(ngModel)]='config.store.ogHomepagePlugin.homepageBtnWeight',
+        (ngModelChange)='config.save()',
+    )
 
 h3(translate='opaqueglasshomepage.debug.title')
 
