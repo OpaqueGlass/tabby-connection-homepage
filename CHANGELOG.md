@@ -1,5 +1,12 @@
 ## 更新日志
 
+### v1.2.1 (2026-05-15)
+
+- 改进：支持调整主页按钮在工具栏中的位置；
+
+---
+- **Improved**: Support for adjusting the position of the homepage button in the toolbar;
+
 ### v1.2.0 (2026-05-13)
 
 - 改进：支持模糊搜索；
