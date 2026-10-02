@@ -1,5 +1,4 @@
 import { clear } from "console";
-import stripAnsi from "strip-ansi";
 import { AppService, BaseTabComponent, SplitTabComponent } from "tabby-core";
 import { BaseTerminalProfile, BaseTerminalTabComponent } from "tabby-terminal";
 

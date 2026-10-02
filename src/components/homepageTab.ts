@@ -143,14 +143,28 @@ export class HomepageTabComponent extends BaseTabComponent implements OnInit, Af
                 return;
             }
 
+            // 注意：不要开启 useTokenSearch。fuse.js 的倒排索引分词器使用 /\b\w+\b/g，
+            // 中文不属于 \w，会被切成 0 个 token，导致中文始终搜不到结果。
+            // 这里改用逐字符的 Bitap 模糊匹配（对 CJK 有效），
+            // 多关键词场景由下面手动分词后取交集来实现。
             this.fuse = new Fuse(this.connections, {
-                useTokenSearch: true,
                 keys: ['name', 'options.host', 'options.user'],
                 threshold: 0.3,
+                ignoreLocation: true,
             })
-            const results = this.fuse.search(query);
-            this.logger.log("result", results);
-            const matchedItems = results.map(result => result.item);
+
+            const tokens = query.split(/\s+/).filter(token => token.length > 0);
+            let matchedItems: any[] | null = null;
+
+            for (const token of tokens) {
+                const hits = new Set(this.fuse.search(token).map(result => result.item));
+                matchedItems = matchedItems === null
+                    ? [...hits]
+                    : matchedItems.filter(item => hits.has(item));
+            }
+            matchedItems = matchedItems ?? [];
+
+            this.logger.log("query", query, "matched", matchedItems);
 
             this.groups = [{
                 id: 'search-results',
