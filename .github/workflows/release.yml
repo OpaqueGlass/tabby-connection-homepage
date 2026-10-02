@@ -17,13 +17,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
       - name: Get CHANGELOGS
-        run: python ./scripts/release_note.py
+        run: node ./scripts/release_note.js
       
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -45,7 +40,9 @@ jobs:
         run: npm install -g npm@11.7.0
 
       - name: Setup yarn
-        run: npm i -g yarn
+        run: |
+          npm install -g corepack
+          yarn set version berry
 
       - name: Install dependencies
         run: yarn install
